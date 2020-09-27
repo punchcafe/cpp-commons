@@ -39,7 +39,7 @@ $(OBJECTCODEDIR) :
 $(objects) : flattened-src-code $(OBJECTCODEDIR)
 	echo $@
 	cp -a $(FLATTENEDSOURCECODEDIR)/. $(OBJECTCODEDIR)/
-	$(CC) -c $(subst .o,.cpp,$@);
+	$(CC) -c $(subst .o,.cpp,$@) -o $@;
 
 tmp :
 	mkdir tmp
