@@ -5,6 +5,7 @@ ARDUINOBUILDDIR := $(BUILDDIR)/arduino
 TESTDIR := test
 ARDUINOLIBNAME := p-commons
 FLATTENEDSOURCECODEDIR := tmp/src-stage
+ARDUINOIDELIBDIR := /Users/punchcafe/Documents/Arduino/libraries/
 
 
 build-space :
@@ -23,9 +24,13 @@ flattened-src-code : tmp-src-stage
 	cp -a src/public/. tmp/src-stage/
 
 compiled-code : flattened-src-code bin-space
-	CC -I./ -o bin/obj tmp/src-stage/*
+	$(CC) -I./ -o bin/obj tmp/src-stage/*
 
 build-arduino : keywords.txt test
+
+publish-to-arduino-local : build-arduino
+	cp -r $(ARDUINOBUILDDIR)/$(ARDUINOLIBNAME) $(ARDUINOIDELIBDIR)$(ARDUINOLIBNAME)
+
 
 bin-space :
 	mkdir bin
@@ -54,7 +59,7 @@ arduino-copy-files : arduino-library-dir flattened-src-code
 	cp -a $(FLATTENEDSOURCECODEDIR)/. $(ARDUINOBUILDDIR)/$(ARDUINOLIBNAME)
 
 keywords.txt : arduino-copy-files
-	java -jar .build-tooling/keygentxt.jar ./src >> build/arduino/keywords.txt
+	java -jar .build-tooling/keygentxt.jar ./src >> $(ARDUINOBUILDDIR)/$(ARDUINOLIBNAME)/keywords.txt
 
 clean:
 	rm -rf $(BUILDDIR)
