@@ -60,8 +60,11 @@ compiled-code : flattened-src-code bin-space
 
 build-arduino : keywords.txt test
 
-publish-to-arduino-local : build-arduino
+publish-to-arduino-local : build-arduino remove-old-arduino-lib
 	cp -r $(ARDUINOBUILDDIR)/$(ARDUINOLIBNAME) $(ARDUINOIDELIBDIR)$(ARDUINOLIBNAME)
+
+remove-old-arduino-lib :
+	rm -r $(ARDUINOIDELIBDIR)$(ARDUINOLIBNAME)
 
 
 bin-space :
