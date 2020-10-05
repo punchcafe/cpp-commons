@@ -16,6 +16,15 @@ objects := $(subst .h,.o,\
 					$(wildcard $(HEADERDIR)/*/*/*/*.h) $(wildcard $(HEADERDIR)/*/*/*/*/*.h) $(wildcard $(HEADERDIR)/*/*/*/*/*/*.h)\
 					$(wildcard $(HEADERDIR)/*/*/*/*/*/*/*.h) $(wildcard $(HEADERDIR)/*/*/*/*/*/*/*/*.h) $(wildcard $(HEADERDIR)/*/*/*/*/*/*/*/*/*/*/*.h)))
 
+TESTSUFFIX = .test
+
+# TODO: clean up make file to use proper directory conventions
+tests := $(subst .cpp,,\
+				$(subst $(TESTDIR)/,$(OBJECTCODEDIR)/,\
+					$(wildcard $(TESTDIR)/*$(TESTSUFFIX).cpp) $(wildcard $(TESTDIR)/*/*$(TESTSUFFIX).cpp) $(wildcard $(TESTDIR)/*/*/*$(TESTSUFFIX).cpp)\
+					$(wildcard $(TESTDIR)/*/*/*/*$(TESTSUFFIX).cpp) $(wildcard $(TESTDIR)/*/*/*/*/*$(TESTSUFFIX).cpp) $(wildcard $(TESTDIR)/*/*/*/*/*/*$(TESTSUFFIX).cpp)\
+					$(wildcard $(TESTDIR)/*/*/*/*/*/*/*$(TESTSUFFIX).cpp) $(wildcard $(TESTDIR)/*/*/*/*/*/*/*/*$(TESTSUFFIX).cpp) $(wildcard $(TESTDIR)/*/*/*/*/*/*/*/*/*/*/*$(TESTSUFFIX).cpp)))
+
 target := $(PROGNAME)
 
 build : $(objects)
@@ -74,15 +83,17 @@ bin-space :
 tmp-test-dir : tmp
 	mkdir tmp/test
 
-test-obj : tmp-test-dir flattened-src-code
+tmp/test/src : tmp-test-dir flattened-src-code
 	mkdir tmp/test/src
 	cp -a tmp/src-stage/. tmp/test/src
-	cp lib/catch.hpp tmp/test/src/catch.hpp
-	cp test/SimpleExample_test.cpp tmp/test/src/SimpleExample_test.cpp
-	CC -o tmp/test/test-obj tmp/test/src/SimpleExample_test.cpp
 
-test: test-obj
-	./tmp/test/test-obj
+
+$(tests) : tmp/test/src $(OBJECTCODEDIR)
+	cp $(subst $(OBJECTCODEDIR), $(TESTDIR), $(subst $(TESTSUFFIX),$(TESTSUFFIX).cpp,$@)) tmp/test/src/
+	CC -o $@ $(subst $(TESTSUFFIX),$(TESTSUFFIX).cpp,$(subst $(OBJECTCODEDIR),tmp/test/src, $@))
+
+test: $(tests)
+	$(patsubst %,./%;,$(tests))
 
 arduino-build-space : build-space
 	mkdir $(ARDUINOBUILDDIR)
